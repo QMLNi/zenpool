@@ -1,0 +1,59 @@
+# ZenPool mihomo 运行时配置示例
+# 复制为 pool/config.yaml 并按需修改；生产环境请更换所有示例凭据。
+mixed-port: 16446
+allow-lan: false
+mode: global
+log-level: warning
+ipv6: false
+external-controller: 127.0.0.1:19090
+
+proxies:
+  - name: "node-1"
+    type: http
+    server: 127.0.0.1
+    port: 15446
+    udp: false
+    username: proxy_user
+    password: change_me
+  - name: "node-2"
+    type: http
+    server: 127.0.0.1
+    port: 15447
+    udp: false
+    username: proxy_user
+    password: change_me
+  - name: "node-3"
+    type: http
+    server: 127.0.0.1
+    port: 15448
+    udp: false
+    username: proxy_user
+    password: change_me
+  - name: "node-4"
+    type: http
+    server: 127.0.0.1
+    port: 15450
+    udp: false
+    username: proxy_user
+    password: change_me
+  - name: "node-5"
+    type: http
+    server: 127.0.0.1
+    port: 15449
+    udp: false
+    username: proxy_user
+    password: change_me
+
+proxy-groups:
+  - name: POOL
+    type: select
+    disable-udp: false
+    proxies:
+      - "node-1"
+      - "node-2"
+      - "node-3"
+      - "node-4"
+      - "node-5"
+
+rules:
+  - MATCH,POOL

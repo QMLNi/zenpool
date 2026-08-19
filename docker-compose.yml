@@ -1,0 +1,36 @@
+services:
+  zenpool-mihomo:
+    image: metacubex/mihomo:latest
+    container_name: zenpool-mihomo
+    restart: always
+    network_mode: host
+    # 首启无 config.yaml（被 .gitignore）时自动复制 example，避免 mihomo 生成默认 7890 配置
+    entrypoint: ["/bin/sh", "-c", "cp -n /root/.config/mihomo/config.yaml.example /root/.config/mihomo/config.yaml 2>/dev/null || true; exec /mihomo -d /root/.config/mihomo"]
+    volumes:
+      - ./pool:/root/.config/mihomo
+    environment:
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:19090/version"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  zenpool:
+    build: .
+    image: zenpool:local
+    container_name: zenpool
+    restart: always
+    network_mode: host
+    depends_on:
+      zenpool-mihomo:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./pool:/app/pool
+    environment:
+      - TZ=Asia/Shanghai
+      - PROXY_PORT=7446
+      - PROXY_POOL=${PROXY_POOL:-}
+      - ZENPOOL_DATA_DIR=/app/data
+      - MIHOMO_CONTROLLER=127.0.0.1:19090
